@@ -1,32 +1,71 @@
-import { NativeTabs } from 'expo-router/unstable-native-tabs';
-import { useColorScheme } from 'react-native';
-
-import { Colors } from '@/constants/theme';
+import {
+  TabList,
+  TabSlot,
+  TabTrigger,
+  type TabTriggerSlotProps,
+  Tabs,
+} from "expo-router/ui";
+import { Pressable, StyleSheet, View, type ViewProps } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { AddButton } from "./add-button";
+import { ThemedText } from "./themed-text";
 
 export default function AppTabs() {
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'unspecified' ? 'light' : scheme];
-
   return (
-    <NativeTabs
-      backgroundColor={colors.background}
-      indicatorColor={colors.backgroundElement}
-      labelStyle={{ selected: { color: colors.text } }}>
-      <NativeTabs.Trigger name="index">
-        <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/home.png')}
-          renderingMode="template"
-        />
-      </NativeTabs.Trigger>
+    <Tabs style={styles.tabs}>
+      <TabSlot style={styles.slot} />
 
-      <NativeTabs.Trigger name="explore">
-        <NativeTabs.Trigger.Label>Explore</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
-          renderingMode="template"
-        />
-      </NativeTabs.Trigger>
-    </NativeTabs>
+      <TabList asChild>
+        <TabBar>
+          <TabTrigger name="index" href={"/"} asChild>
+            <TabButton>账单</TabButton>
+          </TabTrigger>
+          <TabTrigger name="stats" href={"/stats"} asChild>
+            <TabButton>统计</TabButton>
+          </TabTrigger>
+          <AddButton />
+          <TabTrigger name="budget" href={"/budget"} asChild>
+            <TabButton>预算</TabButton>
+          </TabTrigger>
+          <TabTrigger name="accounts" href={"/accounts"} asChild>
+            <TabButton>账户</TabButton>
+          </TabTrigger>
+        </TabBar>
+      </TabList>
+    </Tabs>
   );
 }
+
+function TabBar(props: ViewProps) {
+  const insets = useSafeAreaInsets();
+  return (
+    <View
+      {...props}
+      style={[styles.bar, { paddingBottom: 10 + insets.bottom }]}
+    />
+  );
+}
+function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps) {
+  return (
+    <Pressable {...props} style={styles.button}>
+      <ThemedText style={[styles.label, isFocused && styles.labelOn]}>
+        {children}
+      </ThemedText>
+    </Pressable>
+  );
+}
+const styles = StyleSheet.create({
+  tabs: { flex: 1 },
+  slot: { flex: 1 },
+  bar: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: "#1d243b",
+    backgroundColor: "#ffffff",
+    paddingTop: 8,
+  },
+  button: { flex: 1, alignItems: "center", paddingVertical: 6 },
+  label: { fontSize: 13, color: "#030508" },
+  labelOn: { color: "#2563eb", fontWeight: "700" },
+});
